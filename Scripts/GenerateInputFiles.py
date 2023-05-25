@@ -12,7 +12,7 @@ import numpy as np
 from numpy.random import default_rng
 import itertools as it
 from math import sqrt
-from random import random
+from random import random, choice
 import Inputs_For_GenerateInputFiles as ui
 
 def cast_route_to_string(route):
@@ -20,6 +20,22 @@ def cast_route_to_string(route):
     for i in route:
         StrRoute = StrRoute + str(i)
     return StrRoute
+
+def append_routes(pair,target_list):
+    newGraph = G.copy()
+    for i in range(cutoff):
+        if nx.has_path(newGraph,pair[0],pair[1]):
+            route = nx.shortest_path(newGraph, pair[0],pair[1]) #Find the route
+            StrRoute = cast_route_to_string(route)
+            if StrRoute not in target_list:
+                target_list.append(StrRoute) 
+                for edge in nx.utils.pairwise(route):
+                    if random() <= ui.path_pop_prob:
+                        newGraph.remove_edge(edge[0],edge[1])
+                if newGraph.edges() == G.edges(): # If no edge has been removed, remove one at random. 
+                    edge = choice(list(nx.utils.pairwise(route)))
+                    newGraph.remove_edge(edge[0],edge[1]) 
+
 
 
 rng = default_rng()
@@ -82,67 +98,65 @@ if SPair1 is None or SPair2 is None:
 
 Load_Points = np.linspace(0,ui.Max_Ppairs_Load,ui.N_Load_Points)
 
-with open("Scripts/Simulation_Parameters.py") as f:
+with open("Simulation_Parameters.py") as f:
     Unchanging_inputs = f.read()
 
-for conf in range(ui.Configs_toGen): 
     rSPair1 = tuple(reversed(SPair1))
     rSPair2 = tuple(reversed(SPair2))
-    
-    
-    if ui.IncludePhysicalQueues:
-        DrawPool = set(it.combinations(G.nodes,2)) - set(SPair1,SPair2,rSPair1,rSPair2)
-    else:
-        DrawPool = set(it.combinations(G.nodes,2)) - set(G.edges) - set((SPair1,SPair2,rSPair1,rSPair2))
-    
-    
-    DrawPool = list(DrawPool) # Casting to list because rng.choice takes a list as input
-    
-    
-    RAW_SPairs = list(rng.choice(DrawPool,ui.Num_Pairs-2))
-    for i, _ in enumerate(RAW_SPairs):
-        RAW_SPairs[i] = tuple(RAW_SPairs[i])
-    
-    
-    RAW_SPairs = [SPair1, SPair2] + RAW_SPairs
-    
-    routes = []
-    
-    SPairs = RAW_SPairs
-    
-    for cutoff in range(1,ui.Num_Routes+1): # Find n routes for the pairs
-        routes = []
-        for pair in SPairs:
-            newGraph = G.copy()
-            for i in range(cutoff):
-                if nx.has_path(newGraph,pair[0],pair[1]):
-                    route = nx.shortest_path(newGraph, pair[0],pair[1]) #Find the route
-                    StrRoute = cast_route_to_string(route)
-                    routes.append(StrRoute)
-                    for edge in nx.utils.pairwise(route):
-                        if random() <= ui.path_pop_prob:
-                            newGraph.remove_edge(edge[0],edge[1])
-                            
-        for ld in Load_Points:
-            for policy in ui.policies_to_simulate:
-                CompleteName = "Sim_inputs_C" + str(conf) + "_L" + str(int(ld/1000)) + "_" + policy["short_name"] + "_" + str(cutoff) + "routes.py"
-                # OUTPUT
-                with open(CompleteName,"w") as f:
-                    f.write(Unchanging_inputs)
-                    f.write("\n")
-                    f.write("ArrRates = {\n")
-                    end = len(G.edges)
-                    for i in G.edges:
-                        if i != end:
-                            f.write(f"frozenset(('{i[0]}','{i[1]}')) : {ui.GenRate},\n")
-                        else:
-                            f.write(f"frozenset(('{i[0]}','{i[1]}')) : {ui.GenRate}\n")
-                    f.write("}\n")
-                    f.write(f"topologyname = \"{ui.Graph_Type}({ui.n_nodes},{ui.n_neighbors},{ui.p}), {ui.Num_Pairs}p\"\n")
-                    f.write(f"routes = {routes}\n")
-                    f.write(f"SPairs = {SPairs}\n")
-                    f.write(f"DemRateRest = {int(ld)}\n")
-                    f.write(f"policy = {policy}")
 
+## Routing the main pairs outside the loop on Conigs_toGen to keep them the same across draws:
+    
+for cutoff in range(1,ui.Num_Routes+1): # Generate 1route, 2routes, 3routes...Nroutes input files.
+
+    MainPairRoutes = []
+    for pair in (SPair1,SPair2):
+        append_routes(pair,MainPairRoutes)
+
+
+    for conf in range(ui.Configs_toGen): 
+        if ui.IncludePhysicalQueues:
+            DrawPool = set(it.combinations(G.nodes,2)) - set(SPair1,SPair2,rSPair1,rSPair2)
+        else:
+            DrawPool = set(it.combinations(G.nodes,2)) - set(G.edges) - set((SPair1,SPair2,rSPair1,rSPair2))
+        
+        
+        DrawPool = list(DrawPool) # Casting to list because rng.choice takes a list as input
+        
+        
+        RAW_SPairs = list(rng.choice(DrawPool,ui.Num_Pairs-2))
+        for i, _ in enumerate(RAW_SPairs):
+            RAW_SPairs[i] = tuple(RAW_SPairs[i])
+        
+        
+        RAW_SPairs = [SPair1, SPair2] + RAW_SPairs
+        
+        SPairs = RAW_SPairs
+        
+        
+        routes = MainPairRoutes.copy()
+        for pair in SPairs[2:]: # Route parasitic pairs
+            append_routes(pair,routes)
+                                
+            for ld in Load_Points: # Print final file
+                for policy in ui.policies_to_simulate:
+                    CompleteName = "Sim_inputs_C" + str(conf) + "_L" + str(int(ld/1000)) + "_" + policy["short_name"] + "_" + str(cutoff) + "routes.py"
+                    # OUTPUT
+                    with open(CompleteName,"w") as f:
+                        f.write(Unchanging_inputs)
+                        f.write("\n")
+                        f.write("ArrRates = {\n")
+                        end = len(G.edges)
+                        for i in G.edges:
+                            if i != end:
+                                f.write(f"frozenset(('{i[0]}','{i[1]}')) : {ui.GenRate},\n")
+                            else:
+                                f.write(f"frozenset(('{i[0]}','{i[1]}')) : {ui.GenRate}\n")
+                        f.write("}\n")
+                        f.write(f"topologyname = \"{ui.Graph_Type}({ui.n_nodes},{ui.n_neighbors},{ui.p}), {ui.Num_Pairs}p\"\n")
+                        f.write(f"routes = {routes}\n")
+                        f.write(f"SPairs = {SPairs}\n")
+                        f.write(f"DemRateRest = {int(ld)}\n")
+                        f.write(f"policy = {policy}")
+    
 
 

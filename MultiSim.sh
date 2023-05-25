@@ -1,4 +1,4 @@
-python Scripts/GenerateInputFiles.py
+#python Scripts/GenerateInputFiles.py
 for infile in $(ls Sim_in*.py)
 do
 	echo "$infile"

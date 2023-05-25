@@ -5,18 +5,18 @@ Inputs to the GenerateInputFiles.py script: these specify the topology for the s
 #########################################
 #       INPUT FILE(S) GENERATION        #
 #########################################
-Graph_Type = "G" # WS - WATTS-STROGATZ, 
+Graph_Type = "pG" # WS - WATTS-STROGATZ, 
                  # ER - ERDOS-REINYI, 
                  # G - GRID, pG - GRID, THEN REMOVE EACH EDGE WITH PROB. p 
                  # C - CUSTOM, user-provided
 
 G = None # If you set Graph_Type to "C", provide a NetworkX Graph here. Otherwise, leave this as None. 
 
-n_nodes = 25 # Number of nodes in the topology, <= 52
+n_nodes = 36 # Number of nodes in the topology, <= 52
 
 n_neighbors = 4 # If Graph_Type is WS, this is the number of neighbors each node is connected to.
 
-p = .29 # p parameter in the random graph generation models.
+p = .3 # p parameter in the random graph generation models.
 
 IncludePhysicalQueues=False # Whether Physical links can be drawn as random service pairs in the simulation. 
 
@@ -37,8 +37,8 @@ Max_Ppairs_Load = 300000 # maximum load over the parasitic pairs, Hz
 
 N_Load_Points = 4 # Number of load points for the parasitic pairs
 
-SPair1=("A","Y") #If you don't define them here, the code will show you the topology and prompt you to choose
-SPair2=("U","E") #The code expects them to be defined as a string, like "AB" or "aB"
+SPair1=None #If you don't define them here, the code will show you the topology and prompt you to choose
+SPair2=None #The code expects them to be defined as a string, like "AB" or "aB"
 
 policies_to_simulate = [
     
