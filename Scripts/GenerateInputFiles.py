@@ -98,7 +98,7 @@ if SPair1 is None or SPair2 is None:
 
 Load_Points = np.linspace(0,ui.Max_Ppairs_Load,ui.N_Load_Points)
 
-with open("Simulation_Parameters.py") as f:
+with open("Scripts/Simulation_Parameters.py") as f:
     Unchanging_inputs = f.read()
 
     rSPair1 = tuple(reversed(SPair1))
