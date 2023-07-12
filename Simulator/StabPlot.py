@@ -76,14 +76,6 @@ if __name__ == '__main__':
     
     AvD_RAW, Dt_RAW = zip(*output_RAW)
     
-    
-    # print("Starting cache assembly...")
-    # archive = dict()
-    # for arc in archive_RAW:
-    #     archive.update(arc)
-    # print("Cache generated. Writing to disk...")
-    # np.save("controller_cache",archive)
-    
     lenD = len(Dt_RAW[0])
     
     Dt = np.array(Dt_RAW).reshape((ui.n_points,ui.n_points,lenD),order="F")

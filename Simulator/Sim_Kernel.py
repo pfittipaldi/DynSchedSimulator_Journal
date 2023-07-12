@@ -55,18 +55,18 @@ def Sim(BatchInput,memo_pix):
     rank = {}
     currentrank = 0
     QG=qnet.QC.graph()
-    cycles = list(nx.simple_cycles(QG)) # Listing all the cycles in the routing graph, because they need special care in the ranking process
-    watchlist = list(chain(*cycles))
-    watchlist.sort(key=lambda x : len(x))
+    cycles = nx.simple_cycles(QG) # Listing all the cycles in the routing graph, because they need special care in the ranking process
+    watchlist = set(chain.from_iterable(cycles))
     while(len(QG) > 0):
+        testing_degree = 0
         rank[currentrank] = []
         bottom_layer = [v for v in QG if QG.in_degree(v) == 0]
-        if bottom_layer == []:
-            bottom_layer = [i for i in watchlist if QG.in_degree(i) == 1 and len(i) != len(rank[currentrank-1][0])]
+        while bottom_layer == []:
+            testing_degree+=1
+            bottom_layer = [i for i in watchlist if i in QG and QG.in_degree(i) == testing_degree and len(i) != len(rank[currentrank-1][0])]
         rank[currentrank] += bottom_layer
         currentrank+=1
         QG.remove_nodes_from(bottom_layer)
-    
     # Building the links 
     Links_list = [Link(tq[0],tq[1],LossParam) for tq in Links_labels]
     fset_labels = [frozenset(lk) for lk in Links_labels]
@@ -74,7 +74,6 @@ def Sim(BatchInput,memo_pix):
     [q.SetPhysical(ui.ArrRates[q.nodes],ui.t_step) for q in Links_list if q.nodes in ui.ArrRates]
     [q.SetService(BatchInput[q.nodes],ui.t_step) for q in Links_list if q.nodes in BatchInput]
     
-     
     #Instantiating the Quantum Controller and the Physics Engine
     q_controller = Q_Controller(qnet.G,Links_dict,rank,Rs_Labels,Ms,Ns) 
     p_engine = LinkPhysicsEngine(Links_list)
@@ -95,8 +94,6 @@ def Sim(BatchInput,memo_pix):
         q_controller.apply_decision()
     
     DQueueAv = sum(AccDt[to_exclude:])/((ui.time_steps-to_exclude)*len(BatchInput))
-    
-    # FinalArchive = q_controller.getArchive()
     
     if DQueueAv >= ui.HIGH_THRESHOLD:
         to_store = tuple(zip(*BatchInput.items()))
