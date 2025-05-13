@@ -165,26 +165,26 @@ for cutoff in range(1,ui.Num_Routes+1): # Generate 1route, 2routes, 3routes...Nr
         for pair in SPairs[2:]: # Route parasitic pairs
             append_routes(pair,routes)
                                 
-            for ld in Load_Points: # Print final file
-                for policy in ui.policies_to_simulate:
-                    CompleteName = "Sim_inputs_C" + str(conf) + "_L" + str(int(ld/1000)) + "_" + policy["short_name"] + "_" + str(cutoff) + "routes.py"
-                    # OUTPUT
-                    with open(CompleteName,"w") as f:
-                        f.write(Unchanging_inputs)
-                        f.write("\n")
-                        f.write("ArrRates = {\n")
-                        end = len(G.edges)
-                        for i in G.edges:
-                            if i != end:
-                                f.write(f"frozenset(('{i[0]}','{i[1]}')) : {ui.GenRate},\n")
-                            else:
-                                f.write(f"frozenset(('{i[0]}','{i[1]}')) : {ui.GenRate}\n")
-                        f.write("}\n")
-                        f.write(f"topologyname = \"{ui.Graph_Type}({ui.n_nodes},{ui.n_neighbors},{ui.p}), {ui.Num_Pairs}p\"\n")
-                        f.write(f"routes = {routes}\n")
-                        f.write(f"SPairs = {SPairs}\n")
-                        f.write(f"DemRateRest = {int(ld)}\n")
-                        f.write(f"policy = {policy}")
+        for ld in Load_Points: # Print final file
+            for policy in ui.policies_to_simulate:
+                CompleteName = "Sim_inputs_C" + str(conf) + "_L" + str(int(ld/1000)) + "_" + policy["short_name"] + "_" + str(cutoff) + "routes.py"
+                # OUTPUT
+                with open(CompleteName,"w") as f:
+                    f.write(Unchanging_inputs)
+                    f.write("\n")
+                    f.write("ArrRates = {\n")
+                    end = len(G.edges)
+                    for i in G.edges:
+                        if i != end:
+                            f.write(f"frozenset(('{i[0]}','{i[1]}')) : {ui.GenRate},\n")
+                        else:
+                            f.write(f"frozenset(('{i[0]}','{i[1]}')) : {ui.GenRate}\n")
+                    f.write("}\n")
+                    f.write(f"topologyname = \"{ui.Graph_Type}({ui.n_nodes},{ui.n_neighbors},{ui.p}), {ui.Num_Pairs}p\"\n")
+                    f.write(f"routes = {routes}\n")
+                    f.write(f"SPairs = {SPairs}\n")
+                    f.write(f"DemRateRest = {int(ld)}\n")
+                    f.write(f"policy = {policy}")
     
     # Print a picture of the topology:
     inPair1 = lambda node : node in SPairs[0] 
