@@ -38,7 +38,8 @@ class Q_Node: # Single node in the quantum network.
     def attempt_transition(self,transition,n):
         queue1 = self.getLink((transition[0],transition[2]))
         queue2 = self.getLink((transition[2],transition[4]))
-        successes = min(queue1.Measure(n),queue2.Measure(n),n) # Either we managed to serve all demands, or there was not enough resource. 
+        measurements_to_run = min(queue1.Ebits,queue2.Ebits,n)
+        successes = min(queue1.Measure(measurements_to_run),queue2.Measure(measurements_to_run),measurements_to_run) # Either we managed to serve all demands, or there was not enough resource. 
         return successes
     
     def enqueue_success(self,recv_queue,n):
