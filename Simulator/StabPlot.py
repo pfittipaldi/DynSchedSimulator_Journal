@@ -30,7 +30,7 @@ if __name__ == '__main__':
     
     AvD_RAW = [] 
 
-    nprocs = int(mp.cpu_count()/2) # Number of workers in the pool. /2 to have as many workers as there are physical cores.
+    nprocs = int(mp.cpu_count() -1) # Number of workers in the pool. /2 to have as many workers as there are physical cores.
                                    # If your CPU is not multithreaded, remove the /2.
 
     InputList = []
@@ -75,7 +75,7 @@ if __name__ == '__main__':
     # Output conditioning and plotting 
     
     AvD_RAW, Dt_RAW = zip(*output_RAW)
-    
+    'PhotonLifeTime', 't_step', 'time_steps', 'memo_len', 'n_points', 'minload', 'maxload', 'plot_temporal_plots', 'PlotCutoff', 'HIGH_THRESHOLD', 'LOW_THRESHOLD', 'LogScale', 'n_labels', 'comment', 'ParallelRun', 'ArrRates', 'topologyname', 'routes', 'SPairs', 'DemRateRest', 'policy_name', 'policy_short_name', 'policy_localization', 'policy_information access', 'policy_type', 'AvD', 'Dt'
     lenD = len(Dt_RAW[0])
     
     Dt = np.array(Dt_RAW).reshape((ui.n_points,ui.n_points,lenD),order="F")
@@ -110,6 +110,10 @@ if __name__ == '__main__':
     plt.savefig(f"{ui.n_points}x{ui.n_points}_{short_name}_{ui.topologyname}_{now}_{nprocs}t_{ui.comment}.pdf",bbox_inches="tight")
     
     inputs = dict(ipt for ipt in ui.__dict__.items() if ipt[0][0] != "_") # Storing all the user input variables in this list for saving
+    
+    policy = inputs.pop('policy')
+    for key, value in policy.items():
+        inputs[f'policy_{key}'] = value
     
     np.savez(f"{ui.n_points}x{ui.n_points}_{short_name}_{ui.topologyname}_{now}_{nprocs}t_{ui.comment}", **inputs ,AvD=AvD, Dt=Dt)
 

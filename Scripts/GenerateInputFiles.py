@@ -181,6 +181,8 @@ for cutoff in range(1,ui.Num_Routes+1): # Generate 1route, 2routes, 3routes...Nr
                             f.write(f"frozenset(('{i[0]}','{i[1]}')) : {ui.GenRate}\n")
                     f.write("}\n")
                     f.write(f"topologyname = \"{ui.Graph_Type}({ui.n_nodes},{ui.n_neighbors},{ui.p}), {ui.Num_Pairs}p\"\n")
+                    f.write(f"config = {conf}\n")
+                    f.write(f"n_routes = {ui.Num_Routes}\n")
                     f.write(f"routes = {routes}\n")
                     f.write(f"SPairs = {SPairs}\n")
                     f.write(f"DemRateRest = {int(ld)}\n")
