@@ -7,6 +7,7 @@ by Nodes and by the Physics Engine.
 
 """
 import numpy as np
+import User_Input as ui
 
 class Link:
     def __init__(self,nd1,nd2,LossParam):
@@ -27,6 +28,9 @@ class Link:
         self.type = "physical"
         alpha = arr_rate_s*t_step
         self.Poiss_Ebits = alpha # Parameter for the Poisson Distribution of photon arrivals
+    
+    def isPhysical(self):
+        return self.type == "physical"
 
     def SetVirtual(self):
         self.type = "virtual"
@@ -71,7 +75,7 @@ class Link:
     def Generate(self):
         rng = self.rng
         if (self.type == "physical"):
-            generated = rng.poisson(self.Poiss_Ebits)
+            generated = min(rng.poisson(self.Poiss_Ebits),ui.MemorySlots)
             self.Ebits += generated
             return generated
         else:
@@ -111,3 +115,8 @@ class Link:
     def getAverages(self):
         return (self.Poiss_Ebits,self.Poiss_Demands,self.LossParam)
     
+    def removeEbit(self):
+        if self.Ebits > 0:
+            self.Ebits -= 1 
+        # else:
+        #     print(f"attempted qubit flushing from empty queue {self.nodes}")

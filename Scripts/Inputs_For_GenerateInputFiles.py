@@ -1,18 +1,18 @@
 """
 Inputs to the GenerateInputFiles.py script: these specify the topology for the simulation, the routing parameters, the policies to simulate....
 """
-
+import networkx as nx
 #########################################
 #       INPUT FILE(S) GENERATION        #
 #########################################
-Graph_Type = "ER" # WS - WATTS-STROGATZ, 
+Graph_Type = "C" # WS - WATTS-STROGATZ, 
                  # ER - ERDOS-RENYI, 
                  # G - GRID, pG - GRID, THEN REMOVE EACH EDGE WITH PROB. p 
                  # C - CUSTOM, user-provided
 
-G = None # If you set Graph_Type to "C", provide a NetworkX Graph here. Otherwise, leave this as None. 
+G = nx.from_edgelist([(1,3),(2,3),(3,4),(4,5),(4,6)]) # If you set Graph_Type to "C", provide a NetworkX Graph here. Otherwise, leave this as None.      
 
-n_nodes = 25 # Number of nodes in the topology, <= 52
+n_nodes = 6 # Number of nodes in the topology, <= 52
 
 n_neighbors = 4 # If Graph_Type is WS, this is the number of neighbors each node is connected to.
 
@@ -23,23 +23,23 @@ IncludePhysicalQueues=False # Whether Physical links can be drawn as random serv
 
 GenRate = 1000000 # Generation rate across the physical links, Hz
 
-Num_Pairs = 10 # Number of service pairs (Parasitic pairs = Num_Pairs - 2)
+Num_Pairs = 2 # Number of service pairs (Parasitic pairs = Num_Pairs - 2)
 
-Num_Routes = 2 # Routes per service pair
+Num_Routes = 1 # Routes per service pair
 
 path_pop_prob = .2 # When requesting more than one path, the n-th path will be 
                    # calculated by removing each edge of the previous shortest 
                    # path with probability p. 
 
-Configs_toGen = 10 # Sets of parasitic pairs to generate
+Configs_toGen = 1 # Sets of parasitic pairs to generate
 
 Max_Ppairs_Load = 300000 # maximum load over the parasitic pairs, Hz
 
-N_Load_Points = 4 # Number of load points for the parasitic pairs
+N_Load_Points = 1 # Number of load points for the parasitic pairs
 
-SPair1=None #If you don't define them here, the code will show you the topology and prompt you to choose
-SPair2=None #The code expects them to be defined as a string, like "AB" or "aB"
-AutoSelectPairs = True
+SPair1="AE" #If you don't define them here, the code will show you the topology and prompt you to choose
+SPair2="CF" #The code expects them to be defined as a string, like "AB" or "aB"
+AutoSelectPairs = False
 
 
 policies_to_simulate = [
@@ -50,31 +50,31 @@ policies_to_simulate = [
     "localization" : "Node-Local",
     "information access" : "Node-Local",
     "type" : "Greedy"
-    },
+    }#,
     
-    {
-    "name" : "Full Information MaxWeight",
-    "short_name" : "FIMW",
-    "localization" : "Global",
-    "information access" : "Full",
-    "type" : "Linear"
-    },
+    # {
+    # "name" : "Full Information MaxWeight",
+    # "short_name" : "FIMW",
+    # "localization" : "Global",
+    # "information access" : "Full",
+    # "type" : "Linear"
+    # },
     
-    {
-    "name" : "Average Information MaxWeight",
-    "short_name" : "AIMW",
-    "localization" : "Global",
-    "information access" : "All Average",
-    "type" : "Linear"
-    },
+    # {
+    # "name" : "Average Information MaxWeight",
+    # "short_name" : "AIMW",
+    # "localization" : "Global",
+    # "information access" : "All Average",
+    # "type" : "Linear"
+    # },
     
-    {
-    "name" : "Local Information MaxWeight",
-    "short_name" : "LIMW",
-    "localization" : "Node-Local",
-    "information access" : "Node-Local",
-    "type" : "Linear"
-    }
+    # {
+    # "name" : "Local Information MaxWeight",
+    # "short_name" : "LIMW",
+    # "localization" : "Node-Local",
+    # "information access" : "Node-Local",
+    # "type" : "Linear"
+    # }
     
     # {
     # "name" : "Full Information Quadratic",

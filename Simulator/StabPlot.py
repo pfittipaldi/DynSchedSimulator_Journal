@@ -118,11 +118,11 @@ if __name__ == '__main__':
     np.savez(f"{ui.n_points}x{ui.n_points}_{short_name}_{ui.topologyname}_{now}_{nprocs}t_{ui.comment}", **inputs ,AvD=AvD, Dt=Dt)
 
     if ui.plot_temporal_plots:
-        fig, ax = plt.subplots(ui.n_points, ui.n_points, sharey=True)
-        for i in range(ui.n_points):
-            for j in range(ui.n_points):
-                if AvD[i,j] != np.inf:
-                    ax[i,j].plot(Dt[i,j,:])
+        # fig, ax = plt.subplots(ui.n_points, ui.n_points, sharey=True)
+        # for i in range(ui.n_points):
+        #     for j in range(ui.n_points):
+        #         if AvD[i,j] != np.inf:
+        #             ax[i,j].plot(Dt[i,j,:])
 	    
         fig2, ax2 = plt.subplots(ui.n_points, ui.n_points)
         for i in range(ui.n_points):

@@ -93,6 +93,11 @@ class Q_Controller:
         self.Backlog_t = {frozenset(l):(self.getLink(l).getEbitBacklog(),self.getLink(l).getDemandBacklog()) for l in self.links_dict}
         return self.Backlog_t
     
+    def capMemory(self):
+        for node in self.nodes_dict.values():
+            node.capMemory()
+            
+    
     def getAvailableInformation(self):
         info = dict()
         info["Averages"] = self.average_info

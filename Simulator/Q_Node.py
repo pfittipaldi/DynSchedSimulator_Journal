@@ -14,6 +14,7 @@ class Q_Node: # Single node in the quantum network.
     def __init__(self,controller,name,rank,averages,Rs_labels,Ms,Ns,memo_archive):
             self.name = name
             self.connectedLinks = {} # {nodes : Queueobject}, for ease of access
+            self.physicalLinks = {}
             self.hasscheduler = False
             self.controller = controller
             self.Ms = Ms
@@ -27,6 +28,8 @@ class Q_Node: # Single node in the quantum network.
                 
     def connect_queue(self,queue): # Called by the QController when bootstrapping the network.
         self.connectedLinks[queue.nodes] = queue 
+        if queue.isPhysical():
+            self.physicalLinks[queue.nodes] = queue
     
     def consume_pairs(self,queue,order): 
         self.getLink(queue).ServeDemand(order)
@@ -101,4 +104,27 @@ class Q_Node: # Single node in the quantum network.
         successes = self.attempt_transition(tr_label,n)
         self.controller.relay_success(recv_queue,successes)
     
+    def getTotalStoredPairs(self):
+        pairs_in_memory = 0
+        prob_vector = np.zeros(len(self.connectedLinks))
+        index = 0
+        for name,ln in self.connectedLinks.items():
+            ebits = ln.getEbitBacklog()
+            prob_vector[index] = ebits
+            index+=1
+            pairs_in_memory += ebits
+        if pairs_in_memory:
+            prob_vector = prob_vector/np.sum(prob_vector)
+        return pairs_in_memory,prob_vector
+        
+    
+    def capMemory(self):
+        pairs_in_memory,prob_vector = self.getTotalStoredPairs()
+        to_flush = pairs_in_memory - ui.MemorySlots
+        if to_flush > 0:
+            if ((prob_vector < 0).any()):
+                breakpoint;
+            links_list = self.rng.choice(list(self.connectedLinks.values()),int(pairs_in_memory - ui.MemorySlots),True,prob_vector)
+            for l in links_list:
+                l.removeEbit()
   
