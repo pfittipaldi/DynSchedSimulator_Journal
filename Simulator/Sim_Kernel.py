@@ -72,7 +72,11 @@ def Sim(BatchInput,memo_pix):
     fset_labels = [frozenset(lk) for lk in Links_labels]
     Links_dict = dict(zip(fset_labels,Links_list))
     [q.SetPhysical(ui.ArrRates[q.nodes],ui.t_step) for q in Links_list if q.nodes in ui.ArrRates]
-    [q.SetService(BatchInput[q.nodes],ui.t_step) for q in Links_list if q.nodes in BatchInput]
+    if ui.traffic_model == "P":
+        [q.SetService_P(BatchInput[q.nodes],ui.t_step) for q in Links_list if q.nodes in BatchInput]
+    elif ui.traffic_model == "I":
+        [q.SetService_I(BatchInput[q.nodes],ui.batch_demand_period) for q in Links_list if q.nodes in BatchInput]
+
     
     #Instantiating the Quantum Controller and the Physics Engine
     q_controller = Q_Controller(qnet.G,Links_dict,rank,Rs_Labels,Ms,Ns) 
@@ -84,12 +88,13 @@ def Sim(BatchInput,memo_pix):
     
     to_exclude = int(ui.time_steps/10)
     AccDt = []
-    
+    simtime = 0
     for Maintimestep in range(ui.time_steps):
         Dt = [l.getDemandBacklog() for l in Links_list]
         AccDt.append(sum(Dt))
+        simtime += ui.t_step
         q_controller.snapshot() # The q_controller takes a snapshot of Q(t) and D(t): this information is assumed available in all our policies.
-        p_engine.step()
+        p_engine.step(simtime)
         q_controller.schedule()    
         q_controller.apply_decision()
     

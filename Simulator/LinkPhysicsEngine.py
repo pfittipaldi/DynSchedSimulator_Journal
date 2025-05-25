@@ -24,15 +24,15 @@ class LinkPhysicsEngine:
             L[i] = self.Links[i].Loss();
         return L
     
-    def receive_demand(self):
+    def receive_demand(self,simtime):
         B = np.zeros(len(self.Links))
         for i in range(len(self.Links)):
-            B[i] = self.Links[i].Demand();
+            B[i] = self.Links[i].Demand(simtime);
         return B
     
-    def step(self):
+    def step(self,simtime):
         A = self.generate()
         L = self.losses()
-        B = self.receive_demand()
+        B = self.receive_demand(simtime)
         return A, L, B
         
