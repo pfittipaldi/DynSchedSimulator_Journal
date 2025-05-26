@@ -20,11 +20,16 @@ class SchedulingModule:
         self.rng = np.random.default_rng()
         self.Ms = Ms
         self.Ns = Ns
+        self.RsLabels = []
         self.G = np.vstack((self.Ms,self.Ns)) #Constraints matrix
         self.P = self.Ns.T@self.Ns # Quadratic penalty for the quad schedulers
         with redirect_stdout(open(devnull,"w")): # This is just to suppress gurobi's output, couldn't manage otherwise
             self.env = gp.Env()
         self.memo = memo_archive # In-scheduler memoization
+        self.precalculated_schedules = {}
+        self.route1,self.route2 = ui.routes[0:2]
+        self.SPair1 = self.route1[0] + self.route1[-1]
+        self.SPair2 = self.route2[0] + self.route2[-1]
         
     def greedy_schedule(self):
         sol = [np.inf]*(len(self.Ms[0]))
@@ -57,9 +62,34 @@ class SchedulingModule:
             sol = np.array([v.x for v in prob.getVars()],dtype=np.uintc)
             return sol
     
+    def setLabels(self,labels):
+        self.RsLabels = labels
+    
+    def precalculateSchedules(self): # If the scheduling policy is deterministic, we can precalculate it here.
+        self.precalculated_schedules["00"] = [0]*len(self.Ms[0])
+        self.precalculated_schedules["11"] = [np.inf]*len(self.Ms[0])
+        schedule10 = np.zeros(len(self.Ms[0]))
+        schedule01 = np.zeros(len(schedule10))
+        for idx,lb in enumerate(self.RsLabels):
+            clean_label=lb.replace("[","").replace("]","")
+            if (set(clean_label) <= set(self.route1) and ((len(clean_label) == 3) or (clean_label == self.SPair1) or (clean_label == self.SPair2))):
+                schedule10[idx] = np.inf
+            if (set(clean_label) <= set(self.route2) and ((len(clean_label) == 3) or (clean_label == self.SPair1) or (clean_label == self.SPair2))):
+                schedule01[idx] = np.inf
+        self.precalculated_schedules["10"] = schedule10
+        self.precalculated_schedules["01"] = schedule01
+    
     def custom_schedule(self): # Implement your custom scheduler here. 
-        print("Edit the custom_schedule method inside SchedulingModule.py to test your own schedulers")
-        exit()
+        w_with_labels = dict(zip(self.RsLabels,-self.w))
+        if (w_with_labels[self.SPair1] == 0 and w_with_labels[self.SPair2] == 0):
+            Rs = self.precalculated_schedules["00"]
+        elif (w_with_labels[self.SPair1] != 0 and w_with_labels[self.SPair2] == 0):
+            Rs = self.precalculated_schedules["10"]
+        elif (w_with_labels[self.SPair1] == 0 and w_with_labels[self.SPair2] != 0):
+            Rs = self.precalculated_schedules["01"]
+        else:
+            Rs = self.precalculated_schedules["11"]
+        return Rs
     
     def calculate_constr_weights(self,Backlog_t=None,Averages=None,Backlog_t1=None,Local_Backlog_t1=None):
         alpha = Averages["alpha"]

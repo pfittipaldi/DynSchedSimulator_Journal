@@ -33,6 +33,11 @@ class Q_Controller:
         if ui.policy["localization"] == "Global":
             self.scheduler = SchedulingModule(Ms,Ns,self.memo_archive)
     
+    def set_scheduler_labels(self,labels):
+        if ui.policy["localization"] == "Global":
+            self.scheduler.setLabels(labels)
+            self.scheduler.precalculateSchedules()
+    
     def boot_cache(self):
         try:
             cache = np.load("controller_cache.npy",allow_pickle=True)
@@ -50,7 +55,6 @@ class Q_Controller:
             for node in link:
                 self.connect_node(node)
                 self.getNode(node).connect_queue(self.links_dict[link])
-             
     
     def discover_links(self):
         average_info_raw=[] # alpha, beta and eta for all links. 

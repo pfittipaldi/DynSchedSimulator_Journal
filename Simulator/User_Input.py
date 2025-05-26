@@ -7,21 +7,21 @@ Simulator parameters: These inputs are specific to the simulator.
 #           SIMULATION INPUTS           #
 #########################################
 
-PhotonLifeTime = "Inf" #10e-6 # average photon lifetime inside the quantum memories, s 
+PhotonLifeTime = .01 # average photon lifetime inside the quantum memories, s 
                        # Should be always higher than time step.
                        # Set to "Inf" for lossless simulation.
 
 traffic_model = "I"
 batch_demand_period = 0.5  
-MemorySlots = 100   
+MemorySlots = 9000  
                 
-t_step = 0.01 #1e-6; # Length of the time step, s
+t_step = 0.001 #1e-6; # Length of the time step, s
 
-time_steps = int(2e3); # Number of steps to simulate per pixel
+time_steps = int(2e4); # Number of steps to simulate per pixel
 
 memo_len=int(time_steps) # How many configurations should be memoized
 
-n_points = 65 # The final stability plot will have a resolution of n_points*n_points
+n_points = 20 # The final stability plot will have a resolution of n_points*n_points
 
 minload = 100 # Minimum load across the two plotted service pairs, Hz
             # If possible, avoid setting this to zero, prefer a low non-zero value.
@@ -57,11 +57,11 @@ ParallelRun = True    # Huge performance gain if True. This should be set to
                       # False only when debugging
 
 ArrRates = {
-frozenset(('A','B')) : 1000000,
-frozenset(('B','C')) : 1000000,
-frozenset(('B','D')) : 1000000,
-frozenset(('D','E')) : 1000000,
-frozenset(('D','F')) : 1000000,
+frozenset(('A','B')) : 5000,
+frozenset(('B','C')) : 5000,
+frozenset(('B','D')) : 5000,
+frozenset(('D','E')) : 5000,
+frozenset(('D','F')) : 5000,
 }
 topologyname = "C(6,4,0.12), 2p"
 config = 0
@@ -69,4 +69,4 @@ n_routes = 1
 routes = ['ABDE', 'CBDF']
 SPairs = ['AE', 'CF']
 DemRateRest = 0
-policy = {'name': 'Greedy', 'short_name': 'G', 'localization': 'Node-Local', 'information access': 'Node-Local', 'type': 'Greedy'}
+policy = {'name': 'Greedy', 'short_name': 'Greedy', 'localization': 'Node-Local', 'information access': 'Node-Local', 'type': 'Greedy'}

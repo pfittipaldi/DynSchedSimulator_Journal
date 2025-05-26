@@ -50,6 +50,7 @@ def Sim(BatchInput,memo_pix):
     
     
     
+    
     # Ranking all the queues and transitions to derive the execution order, with extra care for cycles.
     # See docs for in-depth explanation of this section. 
     rank = {}
@@ -82,9 +83,7 @@ def Sim(BatchInput,memo_pix):
     q_controller = Q_Controller(qnet.G,Links_dict,rank,Rs_Labels,Ms,Ns) 
     p_engine = LinkPhysicsEngine(Links_list)
     
-    # Defining the building blocks of the optimization problem.
-    # From now on, every variable with an s in front is to be read as \tilde{x}
-    
+    q_controller.set_scheduler_labels(Rs_Labels)
     
     to_exclude = int(ui.time_steps/10)
     AccDt = []
@@ -95,7 +94,7 @@ def Sim(BatchInput,memo_pix):
         simtime += ui.t_step
         q_controller.snapshot() # The q_controller takes a snapshot of Q(t) and D(t): this information is assumed available in all our policies.
         p_engine.step(simtime)
-        q_controller.capMemory()
+        #q_controller.capMemory()
         q_controller.schedule()    
         q_controller.apply_decision()
     

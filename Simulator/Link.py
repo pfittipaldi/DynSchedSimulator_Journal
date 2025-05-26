@@ -75,7 +75,7 @@ class Link:
     def Generate(self):
         rng = self.rng
         if (self.type == "physical"):
-            generated = min(rng.poisson(self.Poiss_Ebits),ui.MemorySlots)
+            generated = rng.poisson(self.Poiss_Ebits)
             self.Ebits += generated
             return generated
         else:

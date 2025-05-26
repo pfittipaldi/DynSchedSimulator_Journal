@@ -123,7 +123,7 @@ class Q_Node: # Single node in the quantum network.
         to_flush = pairs_in_memory - ui.MemorySlots
         if to_flush > 0:
             if ((prob_vector < 0).any()):
-                breakpoint;
+                breakpoint();
             links_list = self.rng.choice(list(self.connectedLinks.values()),int(pairs_in_memory - ui.MemorySlots),True,prob_vector)
             for l in links_list:
                 l.removeEbit()

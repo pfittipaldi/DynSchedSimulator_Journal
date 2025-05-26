@@ -94,15 +94,15 @@ if __name__ == '__main__':
     plt.colorbar()
     
    
-    xlabels = ['{:.2f}'.format(i) for i in np.linspace(DemRates1[0],DemRates1[-1],ui.n_labels)/1000]
-    ylabels = ['{:.2f}'.format(i) for i in np.linspace(DemRates2[0],DemRates2[-1],ui.n_labels)/1000]
+    xlabels = ['{:.2f}'.format(i) for i in np.linspace(DemRates1[0],DemRates1[-1],ui.n_labels)]
+    ylabels = ['{:.2f}'.format(i) for i in np.linspace(DemRates2[0],DemRates2[-1],ui.n_labels)]
     ylabels = np.flip(ylabels)
 
         
     plt.xticks(np.linspace(0,ui.n_points-1,ui.n_labels),xlabels,rotation=70)
     plt.yticks(np.linspace(0,ui.n_points-1,ui.n_labels),ylabels)
-    plt.xlabel(f"Average demand rate across pair {SPair_1[0]}-{SPair_1[1]}, kHz")  
-    plt.ylabel(f"Average demand rate across pair {SPair_2[0]}-{SPair_2[1]}, kHz")
+    plt.xlabel(f"Incoming demand across pair {SPair_1[0]}-{SPair_1[1]} every 0.5 s")  
+    plt.ylabel(f"Incoming demand across pair {SPair_1[0]}-{SPair_1[1]} every 0.5 s")
     
     short_name = ui.policy["short_name"]
     
