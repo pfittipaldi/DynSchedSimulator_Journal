@@ -38,8 +38,8 @@ if __name__ == '__main__':
     
     
     
-    SPair_1 = ui.SPairs[0]
-    SPair_2 = ui.SPairs[1] # Storing these two away before the frozenset cast, to 
+    SPair_1 = tuple(ui.SPairs[0])
+    SPair_2 = tuple(ui.SPairs[1]) # Storing these two away before the frozenset cast, to 
                         # be able to address them by index in the plotting section
     
     for i,_ in enumerate(ui.SPairs): # Building a list of dictionaries, each with the form 
